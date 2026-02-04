@@ -12,8 +12,8 @@ sendBtn.addEventListener('click', async () => {
     body: JSON.stringify(data)
 })
 
-
 let result = await response.json()
+
 
 
     if (result.success) {
