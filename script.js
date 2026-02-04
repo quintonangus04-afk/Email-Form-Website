@@ -4,7 +4,7 @@ sendBtn.addEventListener('click', async () => {
     let emailAddress = document.getElementById('email-input').value
     let message = document.getElementById('text-input').value
     console.log('Btn working as expected!')
-    console.log(emailAdress)
+    console.log(emailAddress)
     console.log(message)
 
     let data = { to: emailAddress, message: message }
