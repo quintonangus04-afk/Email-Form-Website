@@ -6,11 +6,12 @@ sendBtn.addEventListener('click', async () => {
 
     let data = {to: emailAdress, message: message}
 
-    let response = await fetch('https://email-backend-tijh.onrender.com/send', {
+    let response = await fetch('https://email-backend-tljh.onrender.com/send', {
     method: 'POST',
-    headers: {'content-type': 'application/json'},
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify(data)
 })
+
 
 let result = await response.json()
 
