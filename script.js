@@ -6,14 +6,14 @@ sendBtn.addEventListener('click', async () => {
 
     let data = {to: emailAdress, message: message}
 
-    await fetch('https://email-backend-tijh.onrender.com/send', {
+    let response = await fetch('https://email-backend-tijh.onrender.com/send', {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify(data)
+})
 
-        method: 'POST',
-        headers: { 'content-type': 'application/json'},
-        body: JSON.stringify(data)
-    })
+let result = await response.json()
 
-    let result = await response.json()
 
     if (result.success) {
         window.location.href = 'success.html'
