@@ -6,7 +6,7 @@ sendBtn.addEventListener('click', async () => {
 
     let data = { to: emailAddress, message: message }
 
-    let response = await fetch('https://email-backend-tljh.onrender.com/send', {
+    let response = await fetch('email-backend-production-972d.up.railway.app/send', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(data)
