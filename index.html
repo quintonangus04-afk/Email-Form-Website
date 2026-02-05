@@ -1,25 +1,104 @@
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-  emailjs.init("YOUR_PUBLIC_KEY");
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
 
-<link rel="stylesheet" href="style.css">
+    <!-- Basic CSS styling -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
 
+        form {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-<form id="contact-form">
-  <label>Name</label>
-  <input type="text" id="name" required>
+        input, textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
 
-  <label>Email</label>
-  <input type="email" id="email" required>
+        button {
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
 
-  <label>Message</label>
-  <textarea id="message" required></textarea>
+        button:hover {
+            background: #0f5ac6;
+        }
 
-  <button type="submit">Send Message</button>
-</form>
+        #status {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
 
-<p id="status"></p>
+<body>
 
+    <form id="contact-form">
+        <h2>Contact Us</h2>
 
+        <label>Name</label>
+        <input type="text" id="name" required>
 
+        <label>Email</label>
+        <input type="email" id="email" required>
+
+        <label>Message</label>
+        <textarea id="message" required></textarea>
+
+        <button type="submit">Send Message</button>
+    </form>
+
+    <p id="status"></p>
+
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        // Initialize EmailJS
+        emailjs.init("kqORoAoclrpunrmyv");
+
+        // Form handler
+        document.getElementById("contact-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const params = {
+                user_name: document.getElementById("name").value,
+                user_email: document.getElementById("email").value,
+                user_message: document.getElementById("message").value
+            };
+
+            emailjs.send("service_uvy0x4j", "template_9g69xw4", params)
+                .then(() => {
+                    document.getElementById("status").textContent = "Message sent successfully!";
+                })
+                .catch(() => {
+                    document.getElementById("status").textContent = "Something went wrong.";
+                });
+        });
+    </script>
+
+</body>
+</html>
