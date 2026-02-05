@@ -10,7 +10,7 @@ sendBtn.addEventListener('click', async () => {
 
     let data = { to: emailAddress, message: message }
 
-    let response = await fetch("https://email-backend-production-972d.up.railway.app/send", {
+    let response = await fetch("https://email-backend-production-9d14.up.railway.app/send", {
         method: "POST",
         mode: "cors",
         headers: { "Content-Type": "application/json" },
