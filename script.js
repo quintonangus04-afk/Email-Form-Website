@@ -1,19 +1,18 @@
-const sendBtn = document.getElementById('sendBtn');
+document.getElementById("contact-form").addEventListener("submit", function(e) {
+  e.preventDefault();
 
-sendBtn.addEventListener('click', () => {
-    let emailAddress = document.getElementById('email-input').value;
-    let message = document.getElementById('text-input').value;
+  const params = {
+    user_name: document.getElementById("name").value,
+    user_email: document.getElementById("email").value,
+    user_message: document.getElementById("message").value
+  };
 
-    emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-        to_email: emailAddress,
-        message: message
-    })
+  emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", params)
     .then(() => {
-        alert("Email sent successfully!");
+      document.getElementById("status").textContent = "Message sent successfully!";
     })
-    .catch((err) => {
-        console.error(err);
-        alert("Failed to send email.");
+    .catch(() => {
+      document.getElementById("status").textContent = "Something went wrong.";
     });
 });
 
