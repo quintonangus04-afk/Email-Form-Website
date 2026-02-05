@@ -1,23 +1,20 @@
 const sendBtn = document.getElementById('sendBtn');
 
-sendBtn.addEventListener('click', async () => {
+sendBtn.addEventListener('click', () => {
     let emailAddress = document.getElementById('email-input').value;
     let message = document.getElementById('text-input').value;
 
-    let data = { to: emailAddress, message: message };
-
-    let response = await fetch("https://email-backend-production-9d14.up.railway.app/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
-
-    let result = await response.json();
-
-    if (result.success) {
+    emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+        to_email: emailAddress,
+        message: message
+    })
+    .then(() => {
         alert("Email sent successfully!");
-    } else {
+    })
+    .catch((err) => {
+        console.error(err);
         alert("Failed to send email.");
-    }
+    });
 });
+
 

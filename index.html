@@ -3,6 +3,14 @@
 <head>
     <title>Email Form</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("YOUR_PUBLIC_KEY"); 
+        })();
+    </script>
 </head>
 
 <body>
@@ -21,4 +29,5 @@
     <script src="script.js" defer></script>
 </body>
 </html>
+
 
