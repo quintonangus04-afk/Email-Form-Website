@@ -6,6 +6,11 @@ sendBtn.addEventListener('click', async () => {
 
     let data = { to: emailAddress, message: message };
 
+<<<<<<< HEAD
+=======
+    let data = { to: emailAddress, message: message }
+
+>>>>>>> 7edc8bffc54aa9bee16497d8d384336252241102
     let response = await fetch("https://email-backend-production-9d14.up.railway.app/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
