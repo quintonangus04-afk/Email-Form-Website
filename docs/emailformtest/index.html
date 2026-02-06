@@ -37,12 +37,6 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 15px;
-      transition: border 0.2s;
-    }
-
-    input:focus, textarea:focus {
-      border-color: #0078ff;
-      outline: none;
     }
 
     textarea {
@@ -59,7 +53,6 @@
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     button:hover {
@@ -108,7 +101,7 @@
       try {
         const res = await fetch("email-form-website-backend-production.up.railway.app/send", {
           method: "POST",
-          body: new URLSearchParams(form) // Google Sites requires this
+          body: new URLSearchParams(form)
         });
 
         status.innerText = await res.text();
@@ -120,4 +113,3 @@
 
 </body>
 </html>
-
