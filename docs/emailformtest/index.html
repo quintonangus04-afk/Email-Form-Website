@@ -70,7 +70,7 @@ button:hover {
         message: document.getElementById("message").value
       };
 
-      const res = await fetch("https://emailauth.thecousingroup.co.uk/send", {
+      const res = await fetch("https://api.thecousingroup.co.uk/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
