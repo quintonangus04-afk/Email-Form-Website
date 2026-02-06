@@ -1,104 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Form</title>
-
-    <!-- Basic CSS styling -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 40px;
-        }
-
-        form {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        input, textarea {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 12px;
-            background: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background: #0f5ac6;
-        }
-
-        #status {
-            text-align: center;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Email Test</title>
 </head>
-
 <body>
+  <form id="emailForm">
+    <input type="email" id="email" placeholder="Recipient Email" required>
+    <input type="text" id="subject" placeholder="Subject" required>
+    <textarea id="message" placeholder="Message" required></textarea>
+    <button type="submit">Send Email</button>
+  </form>
 
-    <form id="contact-form">
-        <h2>Contact Us</h2>
+  <script>
+    document.getElementById("emailForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-        <label>Name</label>
-        <input type="text" id="name" required>
+      const data = {
+        to: document.getElementById("email").value,
+        subject: document.getElementById("subject").value,
+        message: document.getElementById("message").value
+      };
 
-        <label>Email</label>
-        <input type="email" id="email" required>
+      const res = await fetch("http://localhost:3000/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
 
-        <label>Message</label>
-        <textarea id="message" required></textarea>
-
-        <button type="submit">Send Message</button>
-    </form>
-
-    <p id="status"></p>
-
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-    <script>
-        // Initialize EmailJS
-        emailjs.init("kqORoAoclrpunrmyv");
-
-        // Form handler
-        document.getElementById("contact-form").addEventListener("submit", function(e) {
-            e.preventDefault();
-
-            const params = {
-                user_name: document.getElementById("name").value,
-                user_email: document.getElementById("email").value,
-                user_message: document.getElementById("message").value
-            };
-
-            emailjs.send("service_uvy0x4j", "template_9g69xw4", params)
-                .then(() => {
-                    document.getElementById("status").textContent = "Message sent successfully!";
-                })
-                .catch(() => {
-                    document.getElementById("status").textContent = "Something went wrong.";
-                });
-        });
-    </script>
-
+      const result = await res.text();
+      alert(result);
+    });
+  </script>
 </body>
 </html>
