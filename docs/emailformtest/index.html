@@ -106,7 +106,7 @@
       const form = new FormData(e.target);
 
       try {
-        const res = await fetch("https://email-form-website-backend-917699798868.europe-west2.run.app/send", {
+        const res = await fetch("email-form-website-backend-production.up.railway.app/send", {
           method: "POST",
           body: new URLSearchParams(form) // Google Sites requires this
         });
