@@ -66,6 +66,13 @@
       background: #005fcc;
     }
 
+    #status {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      color: #333;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -84,11 +91,31 @@
       <textarea id="message" placeholder="Message" required></textarea>
       <button type="submit">Send Email</button>
     </form>
+
+    <div id="status"></div>
   </div>
 
   <script>
+    async function sendWithRetry(url, options, retries = 3, delay = 3000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch(url, options);
+          if (!res.ok) throw new Error("Server error");
+          return res;
+        } catch (err) {
+          if (i === retries - 1) throw err;
+          document.getElementById("status").innerText =
+            `Server waking up… retrying (${i + 1}/${retries})`;
+          await new Promise(r => setTimeout(r, delay));
+        }
+      }
+    }
+
     document.getElementById("emailForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const status = document.getElementById("status");
+      status.innerText = "Sending… please wait";
 
       const data = {
         to: document.getElementById("email").value,
@@ -97,16 +124,15 @@
       };
 
       try {
-        const res = await fetch("https://api.thecousingroup.co.uk/send", {
+        const res = await sendWithRetry("https://api.thecousingroup.co.uk/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
         });
 
-        const result = await res.text();
-        alert(result);
+        status.innerText = await res.text();
       } catch (err) {
-        alert("Failed to send email");
+        status.innerText = "Failed to send email. Please try again.";
       }
     });
   </script>
