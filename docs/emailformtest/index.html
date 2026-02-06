@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Email Test</title>
+  <title>Email Form Test</title>
 
   <style>
     body {
@@ -21,7 +21,6 @@
       width: 380px;
       border-radius: 12px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      animation: fadeIn 0.4s ease;
     }
 
     h2 {
@@ -37,12 +36,6 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 15px;
-      transition: border 0.2s;
-    }
-
-    input:focus, textarea:focus {
-      border-color: #0078ff;
-      outline: none;
     }
 
     textarea {
@@ -59,7 +52,6 @@
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     button:hover {
@@ -72,18 +64,13 @@
       font-size: 14px;
       color: #333;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 
 <body>
 
   <div class="container">
-    <h2>Send an Email</h2>
+    <h2>Email Form Test</h2>
 
     <form id="emailForm">
       <input type="email" id="email" placeholder="Recipient Email" required>
@@ -96,26 +83,11 @@
   </div>
 
   <script>
-    async function sendWithRetry(url, options, retries = 3, delay = 3000) {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const res = await fetch(url, options);
-          if (!res.ok) throw new Error("Server error");
-          return res;
-        } catch (err) {
-          if (i === retries - 1) throw err;
-          document.getElementById("status").innerText =
-            `Server waking up… retrying (${i + 1}/${retries})`;
-          await new Promise(r => setTimeout(r, delay));
-        }
-      }
-    }
-
     document.getElementById("emailForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const status = document.getElementById("status");
-      status.innerText = "Sending… please wait";
+      status.innerText = "Sending…";
 
       const data = {
         to: document.getElementById("email").value,
@@ -124,7 +96,7 @@
       };
 
       try {
-        const res = await sendWithRetry("https://email-form-website-backend.onrender.com/send", {
+        const res = await fetch("https://api.thecousingroup.co.uk/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
@@ -132,7 +104,7 @@
 
         status.innerText = await res.text();
       } catch (err) {
-        status.innerText = "Failed to send email. Please try again.";
+        status.innerText = "Failed to send email.";
       }
     });
   </script>
