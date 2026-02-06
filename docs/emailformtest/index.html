@@ -124,7 +124,7 @@
       };
 
       try {
-        const res = await sendWithRetry("https://api.thecousingroup.co.uk/send", {
+        const res = await sendWithRetry("https://email-form-website-backend.onrender.com/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
