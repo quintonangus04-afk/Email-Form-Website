@@ -64,60 +64,108 @@
     text-align: center;
     font-weight: bold;
   }
+
+  #errorSection {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    display: none;
+  }
 </style>
 
 <div class="review-container">
-  <h2>Rate Your Experience with The Cousin Group</h2>
 
-  <form id="reviewForm">
-    <label>Your Name (optional)</label>
-    <input type="text" id="name" placeholder="Your name">
+  <div id="errorSection"></div>
 
-    <label>Your Email (optional)</label>
-    <input type="email" id="email" placeholder="Your email">
+  <div id="reviewFormSection" style="display:none;">
+    <h2>Rate Your Experience with The Cousin Group</h2>
 
-    <label>How would you rate your experience with The Cousin Group?</label>
-    <select id="rating" required>
-      <option value="">Select rating</option>
-      <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
-      <option value="4">⭐⭐⭐⭐ Very Good</option>
-      <option value="3">⭐⭐⭐ Good</option>
-      <option value="2">⭐⭐ Fair</option>
-      <option value="1">⭐ Poor</option>
-    </select>
+    <form id="reviewForm">
+      <label>Your Name (optional)</label>
+      <input type="text" id="name" placeholder="Your name">
 
-    <label>Comments</label>
-    <textarea id="comments" placeholder="Tell us about your experience..." required></textarea>
+      <label>Your Email (optional)</label>
+      <input type="email" id="email" placeholder="Your email">
 
-    <button type="submit">Submit Review</button>
-  </form>
+      <label>How would you rate your experience with The Cousin Group?</label>
+      <select id="rating" required>
+        <option value="">Select rating</option>
+        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+        <option value="4">⭐⭐⭐⭐ Very Good</option>
+        <option value="3">⭐⭐⭐ Good</option>
+        <option value="2">⭐⭐ Fair</option>
+        <option value="1">⭐ Poor</option>
+      </select>
 
-  <div id="status"></div>
+      <label>Comments</label>
+      <textarea id="comments" placeholder="Tell us about your experience..." required></textarea>
+
+      <button type="submit">Submit Review</button>
+    </form>
+
+    <div id="status"></div>
+  </div>
 </div>
 
 <script>
+const API = "https://review-backend-production-6c56.up.railway.app";
+
+// Read token from URL
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get("token");
+
+const formSection = document.getElementById("reviewFormSection");
+const errorSection = document.getElementById("errorSection");
+
+// Validate token before showing form
+async function validateToken() {
+  if (!token) {
+    errorSection.innerText = "Invalid or missing review link.";
+    errorSection.style.display = "block";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/review-token/${token}`);
+    const data = await res.json();
+
+    if (data.valid) {
+      formSection.style.display = "block";
+    } else {
+      errorSection.innerText = "This review link is invalid or has already been used.";
+      errorSection.style.display = "block";
+    }
+  } catch (err) {
+    errorSection.innerText = "Error validating review link.";
+    errorSection.style.display = "block";
+  }
+}
+
+validateToken();
+
+// Handle review submission
 document.getElementById("reviewForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const data = {
-    name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
+    token,
     rating: document.getElementById("rating").value,
-    comments: document.getElementById("comments").value,
-    date: new Date().toISOString()
+    comments: document.getElementById("comments").value
   };
 
   const status = document.getElementById("status");
   status.innerText = "Submitting...";
 
   try {
-    const res = await fetch("https://review-backend-production-6c56.up.railway.app/review", {
+    const res = await fetch(`${API}/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
-    status.innerText = await res.text();
+    const result = await res.json();
+    status.innerText = result.message || result.error;
   } catch (err) {
     status.innerText = "Failed to submit review.";
   }
