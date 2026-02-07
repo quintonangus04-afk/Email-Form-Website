@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    section { margin-bottom: 40px; }
+    input, button { padding: 8px; margin: 5px 0; }
+    .output { margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Admin Panel</h1>
+
+  <!-- Generate Review Link -->
+  <section>
+    <h2>Generate Review Link</h2>
+    <input id="emailInput" type="email" placeholder="Customer Email">
+    <button onclick="generateLink()">Generate Link</button>
+    <div id="linkOutput" class="output"></div>
+  </section>
+
+  <!-- Validate Review Token -->
+  <section>
+    <h2>Validate Review Token</h2>
+    <input id="tokenInput" type="text" placeholder="Review Token">
+    <button onclick="validateToken()">Validate Token</button>
+    <div id="tokenOutput" class="output"></div>
+  </section>
+
+  <!-- Submit Review -->
+  <section>
+    <h2>Submit Review</h2>
+    <input id="reviewToken" type="text" placeholder="Review Token">
+    <textarea id="reviewText" placeholder="Write review..." rows="4" cols="50"></textarea>
+    <button onclick="submitReview()">Submit Review</button>
+    <div id="reviewOutput" class="output"></div>
+  </section>
+
+  <script>
+    const API = "https://review-backend-production-6c56.up.railway.app";
+
+    async function generateLink() {
+      const email = document.getElementById("emailInput").value;
+      const res = await fetch(`${API}/generate-review-link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      document.getElementById("linkOutput").innerText = data.link || data.error;
+    }
+
+    async function validateToken() {
+      const token = document.getElementById("tokenInput").value;
+      const res = await fetch(`${API}/review-token/${token}`);
+      const data = await res.json();
+      document.getElementById("tokenOutput").innerText = data.valid ? "Valid Token" : "Invalid Token";
+    }
+
+    async function submitReview() {
+      const token = document.getElementById("reviewToken").value;
+      const review = document.getElementById("reviewText").value;
+
+      const res = await fetch(`${API}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, review })
+      });
+
+      const data = await res.json();
+      document.getElementById("reviewOutput").innerText = data.message || data.error;
+    }
+  </script>
+
+</body>
+</html>
