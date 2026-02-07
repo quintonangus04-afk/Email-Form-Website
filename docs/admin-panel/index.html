@@ -17,7 +17,10 @@
   <!-- Generate Review Link -->
   <section>
     <h2>Generate Review Link</h2>
+
+    <input id="nameInput" type="text" placeholder="Customer Name">
     <input id="emailInput" type="email" placeholder="Customer Email">
+
     <button onclick="generateLink()">Generate Link</button>
     <div id="linkOutput" class="output"></div>
   </section>
@@ -42,17 +45,26 @@
   <script>
     const API = "https://review-backend-production-6c56.up.railway.app";
 
+    /* -------------------------------
+       Generate Review Link (UPDATED)
+    --------------------------------*/
     async function generateLink() {
+      const name = document.getElementById("nameInput").value;
       const email = document.getElementById("emailInput").value;
+
       const res = await fetch(`${API}/generate-review-link`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ name, email })
       });
+
       const data = await res.json();
       document.getElementById("linkOutput").innerText = data.link || data.error;
     }
 
+    /* -------------------------------
+       Validate Token
+    --------------------------------*/
     async function validateToken() {
       const token = document.getElementById("tokenInput").value;
       const res = await fetch(`${API}/review-token/${token}`);
@@ -60,6 +72,9 @@
       document.getElementById("tokenOutput").innerText = data.valid ? "Valid Token" : "Invalid Token";
     }
 
+    /* -------------------------------
+       Submit Review (unchanged)
+    --------------------------------*/
     async function submitReview() {
       const token = document.getElementById("reviewToken").value;
       const review = document.getElementById("reviewText").value;
@@ -67,7 +82,7 @@
       const res = await fetch(`${API}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, review })
+        body: JSON.stringify({ token, comments: review })
       });
 
       const data = await res.json();
