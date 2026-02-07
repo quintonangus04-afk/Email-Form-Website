@@ -111,7 +111,7 @@ document.getElementById("reviewForm").addEventListener("submit", async (e) => {
   status.innerText = "Submitting...";
 
   try {
-    const res = await fetch("https://review-backend-production-6c56.up.railway.app", {
+    const res = await fetch("https://review-backend-production-6c56.up.railway.app/review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
