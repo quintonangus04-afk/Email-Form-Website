@@ -1,14 +1,82 @@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .review-container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #444;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+
+  textarea {
+    height: 120px;
+    resize: vertical;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: #155bb5;
+  }
+
+  #status {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+  }
+</style>
+
 <div class="review-container">
-  <h2>Rate Your Experience</h2>
+  <h2>Rate Your Experience with The Cousin Group</h2>
 
   <form id="reviewForm">
-    <label>Name (optional)</label>
+    <label>Your Name (optional)</label>
     <input type="text" id="name" placeholder="Your name">
 
-    <label>Email (optional)</label>
+    <label>Your Email (optional)</label>
     <input type="email" id="email" placeholder="Your email">
 
-    <label>How would you rate our printing services?</label>
+    <label>How would you rate your experience with The Cousin Group?</label>
     <select id="rating" required>
       <option value="">Select rating</option>
       <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
@@ -43,7 +111,7 @@ document.getElementById("reviewForm").addEventListener("submit", async (e) => {
   status.innerText = "Submitting...";
 
   try {
-    const res = await fetch("review-backend-production-5621.up.railway.app", {
+    const res = await fetch("https://review-backend-production-5621.up.railway.app/review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
