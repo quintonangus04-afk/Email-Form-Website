@@ -6,8 +6,9 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     section { margin-bottom: 40px; }
-    input, button { padding: 8px; margin: 5px 0; }
+    input, button, textarea, select { padding: 8px; margin: 5px 0; width: 100%; max-width: 400px; }
     .output { margin-top: 10px; font-weight: bold; }
+    #sendEmailBtn { display: none; margin-top: 10px; background: #28a745; color: white; }
   </style>
 </head>
 <body>
@@ -23,21 +24,38 @@
 
     <button onclick="generateLink()">Generate Link</button>
     <div id="linkOutput" class="output"></div>
+
+    <!-- NEW: Send Email Button -->
+    <button id="sendEmailBtn" onclick="sendEmail()">Send Email to Customer</button>
+    <div id="sendEmailOutput" class="output"></div>
   </section>
 
   <!-- Validate Review Token -->
   <section>
     <h2>Validate Review Token</h2>
-    <input id="tokenInput" type="text" placeholder="Review Token">
+    <input id="tokenInput" type="text" placeholder="Token or Full Review URL">
     <button onclick="validateToken()">Validate Token</button>
     <div id="tokenOutput" class="output"></div>
   </section>
 
-  <!-- Submit Review -->
+  <!-- Submit Review (Test Tool) -->
   <section>
-    <h2>Submit Review</h2>
+    <h2>Submit Review (Test Tool)</h2>
+
     <input id="reviewToken" type="text" placeholder="Review Token">
-    <textarea id="reviewText" placeholder="Write review..." rows="4" cols="50"></textarea>
+
+    <label>Rating</label>
+    <select id="reviewRating">
+      <option value="">Select rating</option>
+      <option value="5">⭐⭐⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="1">⭐</option>
+    </select>
+
+    <textarea id="reviewText" placeholder="Write review..." rows="4"></textarea>
+
     <button onclick="submitReview()">Submit Review</button>
     <div id="reviewOutput" class="output"></div>
   </section>
@@ -45,9 +63,23 @@
   <script>
     const API = "https://review-backend-production-6c56.up.railway.app";
 
-    /* -------------------------------
-       Generate Review Link (UPDATED)
-    --------------------------------*/
+    let lastGenerated = {
+      token: null,
+      name: null,
+      email: null
+    };
+
+    /* Extract token from raw token OR full URL */
+    function extractToken(input) {
+      try {
+        const url = new URL(input);
+        return url.searchParams.get("token") || input;
+      } catch {
+        return input; // already a token
+      }
+    }
+
+    /* Generate Review Link */
     async function generateLink() {
       const name = document.getElementById("nameInput").value;
       const email = document.getElementById("emailInput").value;
@@ -60,33 +92,68 @@
 
       const data = await res.json();
       document.getElementById("linkOutput").innerText = data.link || data.error;
+
+      if (data.link) {
+        // Extract token from the generated link
+        const token = extractToken(data.link);
+
+        lastGenerated = { token, name, email };
+
+        // Show send email button
+        document.getElementById("sendEmailBtn").style.display = "inline-block";
+      }
     }
 
-    /* -------------------------------
-       Validate Token
-    --------------------------------*/
+    /* NEW: Send Email to Customer */
+    async function sendEmail() {
+      const output = document.getElementById("sendEmailOutput");
+
+      if (!lastGenerated.token || !lastGenerated.email) {
+        output.innerText = "No token or email available.";
+        return;
+      }
+
+      const res = await fetch(`${API}/send-review-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: lastGenerated.token,
+          name: lastGenerated.name,
+          email: lastGenerated.email
+        })
+      });
+
+      const data = await res.json();
+      output.innerText = data.message || data.error;
+    }
+
+    /* Validate Token */
     async function validateToken() {
-      const token = document.getElementById("tokenInput").value;
+      const raw = document.getElementById("tokenInput").value;
+      const token = extractToken(raw);
+
       const res = await fetch(`${API}/review-token/${token}`);
       const data = await res.json();
-      document.getElementById("tokenOutput").innerText = data.valid ? "Valid Token" : "Invalid Token";
+
+      document.getElementById("tokenOutput").innerText =
+        data.valid ? "Valid Token" : "Invalid Token";
     }
 
-    /* -------------------------------
-       Submit Review (unchanged)
-    --------------------------------*/
+    /* Submit Review (Test Tool) */
     async function submitReview() {
-      const token = document.getElementById("reviewToken").value;
-      const review = document.getElementById("reviewText").value;
+      const token = extractToken(document.getElementById("reviewToken").value);
+      const rating = document.getElementById("reviewRating").value;
+      const comments = document.getElementById("reviewText").value;
 
       const res = await fetch(`${API}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, comments: review })
+        body: JSON.stringify({ token, rating, comments })
       });
 
       const data = await res.json();
-      document.getElementById("reviewOutput").innerText = data.message || data.error;
+      document.getElementById("reviewOutput").innerText =
+        data.message || data.error;
     }
   </script>
 
