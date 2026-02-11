@@ -2,18 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Panel</title>
+  <title>The Cousin Group – Review Admin</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    section { margin-bottom: 40px; }
-    input, button, textarea, select { padding: 8px; margin: 5px 0; width: 100%; max-width: 400px; }
-    .output { margin-top: 10px; font-weight: bold; }
-    #sendEmailBtn { display: none; margin-top: 10px; background: #28a745; color: white; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { margin-bottom: 10px; }
+    section {
+      margin-bottom: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    input, button, textarea, select {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #007bff;
+      color: #fff;
+    }
+    button:hover { opacity: 0.9; }
+    #sendEmailBtn {
+      display: none;
+      margin-top: 10px;
+      background: #28a745;
+    }
+    .output {
+      margin-top: 10px;
+      font-weight: bold;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Admin Panel</h1>
+  <h1>Review Admin Panel</h1>
 
   <!-- Generate Review Link -->
   <section>
@@ -25,7 +55,6 @@
     <button onclick="generateLink()">Generate Link</button>
     <div id="linkOutput" class="output"></div>
 
-    <!-- NEW: Send Email Button -->
     <button id="sendEmailBtn" onclick="sendEmail()">Send Email to Customer</button>
     <div id="sendEmailOutput" class="output"></div>
   </section>
@@ -69,91 +98,138 @@
       email: null
     };
 
-    /* Extract token from raw token OR full URL */
+    // Extract token from raw token OR full URL (robust version)
     function extractToken(input) {
-      try {
-        const url = new URL(input);
-        return url.searchParams.get("token") || input;
-      } catch {
-        return input; // already a token
+      if (!input) return "";
+
+      // If it's already a plain token (10 chars alphanumeric)
+      if (/^[a-z0-9]{10}$/i.test(input.trim())) {
+        return input.trim();
       }
+
+      // Try to pull ?token=... from a URL or string
+      const match = input.match(/token=([a-z0-9]+)/i);
+      if (match) {
+        return match[1];
+      }
+
+      return input.trim();
     }
 
-    /* Generate Review Link */
+    // Generate Review Link
     async function generateLink() {
-      const name = document.getElementById("nameInput").value;
-      const email = document.getElementById("emailInput").value;
+      const name = document.getElementById("nameInput").value.trim();
+      const email = document.getElementById("emailInput").value.trim();
+      const output = document.getElementById("linkOutput");
+      const sendBtn = document.getElementById("sendEmailBtn");
+      const sendOutput = document.getElementById("sendEmailOutput");
 
-      const res = await fetch(`${API}/generate-review-link`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email })
-      });
+      output.textContent = "";
+      sendOutput.textContent = "";
+      sendBtn.style.display = "none";
 
-      const data = await res.json();
-      document.getElementById("linkOutput").innerText = data.link || data.error;
+      if (!email) {
+        output.textContent = "Email is required.";
+        return;
+      }
 
-      if (data.link) {
-        // Extract token from the generated link
-        const token = extractToken(data.link);
+      try {
+        const res = await fetch(`${API}/generate-review-link`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email })
+        });
 
-        lastGenerated = { token, name, email };
+        const data = await res.json();
+        if (data.link) {
+          output.textContent = data.link;
 
-        // Show send email button
-        document.getElementById("sendEmailBtn").style.display = "inline-block";
+          const token = extractToken(data.link);
+          lastGenerated = { token, name, email };
+
+          sendBtn.style.display = "inline-block";
+        } else {
+          output.textContent = data.error || "Failed to generate link.";
+        }
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
       }
     }
 
-    /* NEW: Send Email to Customer */
+    // Send Email to Customer (uses existing token)
     async function sendEmail() {
       const output = document.getElementById("sendEmailOutput");
 
       if (!lastGenerated.token || !lastGenerated.email) {
-        output.innerText = "No token or email available.";
+        output.textContent = "No token or email available.";
         return;
       }
 
-      const res = await fetch(`${API}/send-review-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: lastGenerated.token,
-          name: lastGenerated.name,
-          email: lastGenerated.email
-        })
-      });
+      try {
+        const res = await fetch(`${API}/send-review-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: lastGenerated.token,
+            name: lastGenerated.name,
+            email: lastGenerated.email
+          })
+        });
 
-      const data = await res.json();
-      output.innerText = data.message || data.error;
+        const data = await res.json();
+        output.textContent = data.message || data.error || "Unknown response.";
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      }
     }
 
-    /* Validate Token */
+    // Validate Token
     async function validateToken() {
       const raw = document.getElementById("tokenInput").value;
       const token = extractToken(raw);
+      const output = document.getElementById("tokenOutput");
+      output.textContent = "";
 
-      const res = await fetch(`${API}/review-token/${token}`);
-      const data = await res.json();
+      if (!token) {
+        output.textContent = "Please enter a token or URL.";
+        return;
+      }
 
-      document.getElementById("tokenOutput").innerText =
-        data.valid ? "Valid Token" : "Invalid Token";
+      try {
+        const res = await fetch(`${API}/review-token/${token}`);
+        const data = await res.json();
+        output.textContent = data.valid ? "Valid Token" : "Invalid Token";
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      }
     }
 
-    /* Submit Review (Test Tool) */
+    // Submit Review (Test Tool)
     async function submitReview() {
-      const token = extractToken(document.getElementById("reviewToken").value);
+      const rawToken = document.getElementById("reviewToken").value;
+      const token = extractToken(rawToken);
       const rating = document.getElementById("reviewRating").value;
-      const comments = document.getElementById("reviewText").value;
+      const comments = document.getElementById("reviewText").value.trim();
+      const output = document.getElementById("reviewOutput");
+      output.textContent = "";
 
-      const res = await fetch(`${API}/review`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, rating, comments })
-      });
+      if (!token || !rating || !comments) {
+        output.textContent = "Token, rating and comments are required.";
+        return;
+      }
 
-      const data = await res.json();
-      document.getElementById("reviewOutput").innerText =
-        data.message || data.error;
+      try {
+        const res = await fetch(`${API}/review`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, rating, comments })
+        });
+
+        const data = await res.json();
+        output.textContent = data.message || data.error || "Unknown response.";
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      }
     }
   </script>
 
